@@ -62,9 +62,12 @@ namespace ConsoleApp1
 
     internal class Program
     {
-        private static string csvPath = AppDomain.CurrentDomain.BaseDirectory + "metaall.csv"; // format:  file_id | text
-        private static string audioFolder = AppDomain.CurrentDomain.BaseDirectory + "audio\\"; //   file_id.wav , ...
-        private static string parquetOutput = AppDomain.CurrentDomain.BaseDirectory + "test.parquet";
+        private static string csvPath = "G:\\OPENAI\\TurkishDataSetCreator\\TDSCreate\\bin\\Debug\\net8.0\\GeneratedVoice\\metaall.csv";
+        //AppDomain.CurrentDomain.BaseDirectory + "metaall.csv"; // format:  file_id | text
+        private static string audioFolder = "G:\\OPENAI\\TurkishDataSetCreator\\TDSCreate\\bin\\Debug\\net8.0\\GeneratedVoice\\validated_69k\\validated";
+        //AppDomain.CurrentDomain.BaseDirectory + "audio\\"; //   file_id.wav , ...
+        private static string parquetOutput = "G:\\OPENAI\\oprheus_train_dataset\\test2.parquet";
+        //AppDomain.CurrentDomain.BaseDirectory + "test.parquet";
 
         static void Main(string[] args)
         {
@@ -91,7 +94,7 @@ namespace ConsoleApp1
             var samplingRates = new List<int>();
             var durations = new List<float>();
 
-            var alllines = File.ReadLines(csvPath).ToList().Take(10);
+            var alllines = File.ReadLines(csvPath).ToList().Take(100);
 
             foreach (var line in alllines)
             {
@@ -111,8 +114,10 @@ namespace ConsoleApp1
                 try
                 {
                     var bytes = File.ReadAllBytes(audioPath);
+
                     int samplingRate;
                     float duration;
+                    //var bytes = ReadWavAsFloatList(audioPath, out samplingRate, out duration);
                     GetAudioMetadata(audioPath, out samplingRate, out duration);
 
                     texts.Add(text);
@@ -128,7 +133,10 @@ namespace ConsoleApp1
             }
 
             // Define schema
-            var arrayField = new PrimitiveNode("bytes", Repetition.Optional, LogicalType.None(), PhysicalType.ByteArray);
+            var textField = new PrimitiveNode("text", Repetition.Required, LogicalType.String(), PhysicalType.ByteArray);
+
+
+            var arrayField = new PrimitiveNode("bytes", Repetition.Required, LogicalType.None(), PhysicalType.ByteArray);
             var pathField = new PrimitiveNode("path", Repetition.Optional, LogicalType.String(), PhysicalType.ByteArray);
             var samplingRateField = new PrimitiveNode("sampling_rate", Repetition.Optional, LogicalType.Null(), PhysicalType.Int32);
             var durationField = new PrimitiveNode("duration", Repetition.Optional, LogicalType.None(), PhysicalType.Float);
@@ -137,11 +145,10 @@ namespace ConsoleApp1
             {
             arrayField,
             pathField,
-            //samplingRateField,
-            //durationField
+            samplingRateField,
+            durationField
             });
 
-            var textField = new PrimitiveNode("text", Repetition.Optional, LogicalType.String(), PhysicalType.ByteArray);
 
             var schema = new GroupNode("schema", Repetition.Required, new Node[]
             {
@@ -161,10 +168,10 @@ namespace ConsoleApp1
 
             using var pathWriter = rowGroupWriter.NextColumn().LogicalWriter<Nested<string>>();
             pathWriter.WriteBatch(WrapNested(audioPaths));
-            //using var srWriter = rowGroupWriter.NextColumn().LogicalWriter<Nested<int?>>();
-            //srWriter.WriteBatch(WrapNestedNullable(samplingRates));
-            //using var durWriter = rowGroupWriter.NextColumn().LogicalWriter<Nested<float?>>();
-            //durWriter.WriteBatch(WrapNestedNullable(durations));
+            using var srWriter = rowGroupWriter.NextColumn().LogicalWriter<Nested<int?>>();
+            srWriter.WriteBatch(WrapNestedNullable(samplingRates));
+            using var durWriter = rowGroupWriter.NextColumn().LogicalWriter<Nested<float?>>();
+            durWriter.WriteBatch(WrapNestedNullable(durations));
 
 
 
@@ -177,6 +184,15 @@ namespace ConsoleApp1
 
         }
 
+        static byte[][] convertListToArray(List<byte[]> byteArrayList)
+        {
+            byte[][] result = new byte[byteArrayList.Count()][];
+            for (int i = 0; i < byteArrayList.Count(); i++)
+            {
+                result[i] = byteArrayList.ToArray()[i];
+            }
+            return result;
+        }
         static Nested<T?>[] WrapNestedNullable<T>(List<T> values) where T : struct
         {
             var result = new Nested<T?>[values.Count];
@@ -238,7 +254,7 @@ namespace ConsoleApp1
             }
 
             var fcnt = 0;
-            foreach (var file in Directory.GetFiles("G:\\", "data.parquet"))
+            foreach (var file in Directory.GetFiles("G:\\OPENAI\\oprheus_train_dataset\\", "trainorg.parquet"))
             {
 
                 using (Stream fs = System.IO.File.OpenRead(file))
