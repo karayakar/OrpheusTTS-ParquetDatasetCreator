@@ -62,11 +62,11 @@ namespace ConsoleApp1
 
     internal class Program
     {
-        private static string csvPath = "G:\\OPENAI\\TurkishDataSetCreator\\TDSCreate\\bin\\Debug\\net8.0\\GeneratedVoice\\metaall.csv";
+        private static string csvPath = "G:\\..\\metaall.csv";
         //AppDomain.CurrentDomain.BaseDirectory + "metaall.csv"; // format:  file_id | text
-        private static string audioFolder = "G:\\OPENAI\\TurkishDataSetCreator\\TDSCreate\\bin\\Debug\\net8.0\\GeneratedVoice\\validated_69k\\validated";
+        private static string audioFolder = "G:\\..\\validated";
         //AppDomain.CurrentDomain.BaseDirectory + "audio\\"; //   file_id.wav , ...
-        private static string parquetOutput = "G:\\OPENAI\\oprheus_train_dataset\\test2.parquet";
+        private static string parquetOutput = "G:\\...\\test2.parquet";
         //AppDomain.CurrentDomain.BaseDirectory + "test.parquet";
 
         static void Main(string[] args)
