@@ -1,4 +1,4 @@
-# Orpheus TTS Dataset Creator
+## **📦 Orpheus-TTS Dataset Preparation**
 
 This repository provides tools, including a console app and Python scripts, to create datasets for Orpheus TTS. Follow the steps below to prepare your dataset efficiently.
 
