@@ -9,13 +9,19 @@ https://github.com/canopyai/Orpheus-TTS
 First you need to prepare metadata file ,
 
 **meta**.csv
+
 1 | text of audio 1
+
 2 | text of audio 2
+
 .........
 
 **audio** folder
+
 1.wav
+
 2.wav
+
 
 Run one of the below scripts to create parquet file.
 
