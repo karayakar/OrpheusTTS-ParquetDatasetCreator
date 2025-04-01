@@ -22,8 +22,11 @@ Run one of the below scripts to create parquet file.
 in the scripts adjust the folders and parquet file name.
 
 metadata_path = "G:\..\**meta**.csv"
+
 audio_dir = "G:\..\**audio**"
+
 output_parquet = "**orpheus_tr_10k**.parquet"
+
 
 https://github.com/karayakar/ParquetDatasetCreator/blob/master/pythonScripts/parquet_createData2.py
 or
