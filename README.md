@@ -34,8 +34,11 @@ you can run console app, .net to create parquet file.
 Then run ;
 https://github.com/karayakar/ParquetDatasetCreator/blob/master/pythonScripts/createdataset.py
 change the name of parquet file in the script.
+
 ds = load_dataset("parquet",data_files="G:\...\**orpheus_tr_10k**.parquet", split="train")
+
 ....
+
 
 ds.save_to_disk("G:\....\**testKarayData**") <-- change this folder name
 
