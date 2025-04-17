@@ -11,135 +11,9 @@ from huggingface_hub import snapshot_download
 ## CHANGE TO YOUR NAMESPACE
 name_to_push_dataset_to = "Karayakar/karayTurkish"
 
+ds = load_dataset("parquet",data_files="G:\\OPENAI\\Turkish_VoiceDatasets\\PARQUET\\Orpheus_TTS_KA_60HRS_24000Khz.parquet", split="train")
 
-## CHANGE TO YOUR HUGGINGFACE TOKEN
-#huggingface-cli login --token=""
-
-#wandb login =""
-
-
-#from datasets import load_dataset
-
-#dsn = my_original_dataset_name
-#
-#snapshot_download(
-#    repo_id=dsn,
-#    repo_type="dataset",
-#    revision="main",
-#    max_workers=64,
-#)
-
-
-#import glob
-#shard_files = sorted(glob.glob("karay_oprheus_tr-*.parquet"))
-#ds = load_dataset("parquet", data_files={"train": shard_files}, split="train", num_proc=16)
-#ds = load_dataset("parquet", data_files="G:\\...\\dataset_manifest.json", split="train", num_proc=16)
-ds = load_dataset("parquet",data_files="G:\\...\\orpheus_tr_10k.parquet", split="train")
-
-#ds = load_dataset("parquet", data_files={
-#    "train": [
-#        "karay_oprheus_tr-00000.parquet",
-#        "karay_oprheus_tr-00001.parquet",
-#        "karay_oprheus_tr-00002.parquet",
-#        "karay_oprheus_tr-00003.parquet",
-#        "karay_oprheus_tr-00004.parquet",
-#        "karay_oprheus_tr-00005.parquet",
-#        "karay_oprheus_tr-00006.parquet",
-#        "karay_oprheus_tr-00007.parquet",
-#        "karay_oprheus_tr-00008.parquet",
-#        "karay_oprheus_tr-00009.parquet",
-#        "karay_oprheus_tr-00010.parquet",
-#        "karay_oprheus_tr-00011.parquet",
-#        "karay_oprheus_tr-00012.parquet",
-#        "karay_oprheus_tr-00013.parquet",
-#        "karay_oprheus_tr-00014.parquet",
-#        "karay_oprheus_tr-00015.parquet",
-#        "karay_oprheus_tr-00016.parquet",
-#        "karay_oprheus_tr-00017.parquet",
-#        "karay_oprheus_tr-00018.parquet",
-#        "karay_oprheus_tr-00019.parquet",
-#        "karay_oprheus_tr-00020.parquet",
-#        "karay_oprheus_tr-00021.parquet",
-#        "karay_oprheus_tr-00022.parquet",
-#        "karay_oprheus_tr-00023.parquet",
-#        "karay_oprheus_tr-00024.parquet",
-#        "karay_oprheus_tr-00025.parquet",
-#        "karay_oprheus_tr-00026.parquet",
-#        "karay_oprheus_tr-00027.parquet",
-#        "karay_oprheus_tr-00028.parquet",
-#        "karay_oprheus_tr-00029.parquet",
-#        "karay_oprheus_tr-00030.parquet",
-#        "karay_oprheus_tr-00031.parquet",
-#        "karay_oprheus_tr-00032.parquet",
-#        "karay_oprheus_tr-00033.parquet",
-#        "karay_oprheus_tr-00034.parquet",
-#        "karay_oprheus_tr-00035.parquet",
-#        "karay_oprheus_tr-00036.parquet",
-#        "karay_oprheus_tr-00037.parquet",
-#        "karay_oprheus_tr-00038.parquet",
-#        "karay_oprheus_tr-00039.parquet",
-#        "karay_oprheus_tr-00040.parquet",
-#        "karay_oprheus_tr-00041.parquet",
-#        "karay_oprheus_tr-00042.parquet",
-#        "karay_oprheus_tr-00043.parquet",
-#        "karay_oprheus_tr-00044.parquet",
-#        "karay_oprheus_tr-00045.parquet",
-#        "karay_oprheus_tr-00046.parquet",
-#        "karay_oprheus_tr-00047.parquet",
-#        "karay_oprheus_tr-00048.parquet",
-#        "karay_oprheus_tr-00049.parquet",
-#        "karay_oprheus_tr-00050.parquet",
-#        "karay_oprheus_tr-00051.parquet",
-#        "karay_oprheus_tr-00052.parquet",
-#        "karay_oprheus_tr-00053.parquet",
-#        "karay_oprheus_tr-00054.parquet",
-#        "karay_oprheus_tr-00055.parquet",
-#        "karay_oprheus_tr-00056.parquet",
-#        "karay_oprheus_tr-00057.parquet",
-#        "karay_oprheus_tr-00058.parquet",
-#        "karay_oprheus_tr-00059.parquet",
-#        "karay_oprheus_tr-00060.parquet",
-#        "karay_oprheus_tr-00061.parquet",
-#        "karay_oprheus_tr-00062.parquet",
-#        "karay_oprheus_tr-00063.parquet",
-#        "karay_oprheus_tr-00064.parquet",
-#        "karay_oprheus_tr-00065.parquet",
-#        "karay_oprheus_tr-00066.parquet",
-#        "karay_oprheus_tr-00067.parquet",
-#        "karay_oprheus_tr-00068.parquet",
-#        "karay_oprheus_tr-00069.parquet",
-#        "karay_oprheus_tr-00070.parquet",
-#        "karay_oprheus_tr-00071.parquet",
-#        "karay_oprheus_tr-00072.parquet",
-#        "karay_oprheus_tr-00073.parquet",
-#        "karay_oprheus_tr-00074.parquet",
-#        "karay_oprheus_tr-00075.parquet",
-#        "karay_oprheus_tr-00076.parquet",
-#        "karay_oprheus_tr-00077.parquet",
-#        "karay_oprheus_tr-00078.parquet",
-#        "karay_oprheus_tr-00079.parquet",
-#        "karay_oprheus_tr-00080.parquet",
-#        "karay_oprheus_tr-00081.parquet",
-#        "karay_oprheus_tr-00082.parquet",
-#        "karay_oprheus_tr-00083.parquet",
-#        "karay_oprheus_tr-00084.parquet",
-#        "karay_oprheus_tr-00085.parquet",
-#        "karay_oprheus_tr-00086.parquet",
-#        "karay_oprheus_tr-00087.parquet",
-#        "karay_oprheus_tr-00088.parquet",
-#        "karay_oprheus_tr-00089.parquet",
-#        "karay_oprheus_tr-00090.parquet",
-#        "karay_oprheus_tr-00091.parquet",
-#        "karay_oprheus_tr-00092.parquet",
-#        "karay_oprheus_tr-00093.parquet",
-#        "karay_oprheus_tr-00094.parquet",
-#        "karay_oprheus_tr-00095.parquet",
-#        "karay_oprheus_tr-00096.parquet"]
-#}, split="train", num_proc=40)
-
-
-
-
+#ds = load_dataset("Karayakar/OrpheusTTS100K", split="train")
 ds_sample_rate =24000# ds[0]["audio"]["sampling_rate"]
 
 model = SNAC.from_pretrained("hubertsiuzdak/snac_24khz")
@@ -175,38 +49,35 @@ import torch
 import io
 import soundfile as sf
 import random
-#def add_codes(example):
-#    # Always initialize codes_list to None
-#    codes_list = None
-#
-#    try:
-#        answer_audio = example.get("audio")
-#        # If there's a valid audio array, tokenise it
-#        if answer_audio and "array" in answer_audio:
-#            audio_array = answer_audio["array"]
-#            codes_list = tokenise_audio(audio_array)
-#    except Exception as e:
-#        print(f"Skipping row due to error: {e}")
-#        # Keep codes_list as None if we fail
-#    example["codes_list"] = codes_list
-#    print(codes_list)
-#    return example
 
 def add_codes(example):
     codes_list = None
     try:
-        answer_audio = example.get("audio")
-        if answer_audio and "bytes" in answer_audio:
-            audio_bytes = answer_audio["bytes"]
+        audio_bytes = example.get("audio")  # Adjusted to match flat column name
+        if audio_bytes:
+            # Debug: check the type
+            if isinstance(audio_bytes, str):
+                print("audio_bytes is str, trying to decode...")
+                try:
+                    # Try decoding assuming it was encoded as latin1 during save
+                    audio_bytes = audio_bytes.encode("latin1")
+                except Exception as e:
+                    print(f"Failed to encode string to bytes: {e}")
+                    return example
+
+            elif not isinstance(audio_bytes, (bytes, bytearray)):
+                print(f"Unsupported type for audio_bytes: {type(audio_bytes)}")
+                return example
+
             with io.BytesIO(audio_bytes) as audio_buf:
                 audio_array, _ = sf.read(audio_buf)
             codes_list = tokenise_audio(audio_array)
+
     except Exception as e:
         print(f"Skipping row due to error: {e}")
-    example["codes_list"] = codes_list
-    print(codes_list)
-    return example
 
+    example["codes_list"] = codes_list
+    return example
 
 ds = ds.map(add_codes, remove_columns=["audio"])
 
@@ -298,5 +169,5 @@ columns_to_remove = [col for col in ds.column_names if col not in columns_to_kee
 
 ds = ds.remove_columns(columns_to_remove)
 
-ds.save_to_disk("G:\\....\\Karay_orpheus_tr_10k")
+ds.save_to_disk("G:\\OPENAI\\oprheus_train_dataset\\Orpheus_TTS_KA_60HRS_24000Khz")
 #ds.push_to_hub(name_to_push_dataset_to)
