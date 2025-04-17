@@ -1,6 +1,3 @@
-﻿//using Parquet.Schema;
-//using Parquet;
-//using Parquet.Data;
 using System.Collections;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -12,7 +9,6 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System;
 using NAudio.Wave;
-//using Parquet.Meta;
 using System.Xml.Linq;
 using ParquetSharp.Schema;
 using ParquetSharp;
@@ -20,20 +16,24 @@ using System.Collections.Generic;
 using Parquet;
 using Parquet.Schema;
 using Parquet.Data;
+using Parquet.Serialization;
+using System.IO;
 
 namespace ConsoleApp1
 {
     public class AudioStruct
     {
-        public byte[] array;
+        public string text;
+        public byte[] audio;
         public string path;
         public int sampling_rate;
         public float duration;
 
-        public AudioStruct(byte[] array, string path, int sampling_rate, float duration)
+        public AudioStruct(string text, byte[] audio, string path, int sampling_rate, float duration)
         {
-            this.array = array;
-            this.path = path;
+            this.text = text;
+            this.audio = audio;
+            this.path = "";
             this.sampling_rate = sampling_rate;
             this.duration = duration;
         }
@@ -62,11 +62,11 @@ namespace ConsoleApp1
 
     internal class Program
     {
-        private static string csvPath = "G:\\..\\metaall.csv";
+        private static string csvPath = "G:\\OPENAI\\oprheus_train_dataset\\metaValidated.csv";
         //AppDomain.CurrentDomain.BaseDirectory + "metaall.csv"; // format:  file_id | text
-        private static string audioFolder = "G:\\..\\validated";
+        private static string audioFolder = "G:\\OPENAI\\oprheus_train_dataset\\validatedAudios\\";
         //AppDomain.CurrentDomain.BaseDirectory + "audio\\"; //   file_id.wav , ...
-        private static string parquetOutput = "G:\\...\\test2.parquet";
+        private static string parquetOutput = "G:\\OPENAI\\oprheus_train_dataset\\OrpheusKATR30HRS_FULL.parquet";
         //AppDomain.CurrentDomain.BaseDirectory + "test.parquet";
 
         static void Main(string[] args)
@@ -89,13 +89,18 @@ namespace ConsoleApp1
         private async static Task<bool> ParquetWriters(string[] args)
         {
             var texts = new List<string>();
-            var audioArrays = new List<byte[]>();
+            var audioArrays = new List<string>();
             var audioPaths = new List<string>();
-            var samplingRates = new List<int>();
+            var samplingRates = new List<float>();
             var durations = new List<float>();
 
-            var alllines = File.ReadLines(csvPath).ToList().Take(100);
 
+            var dataList = new List<AudioStruct>();
+
+
+            var alllines = File.ReadLines(csvPath).ToList();
+            var cnt = 0;
+            var first = true;
             foreach (var line in alllines)
             {
                 var parts = line.Split('|');
@@ -103,7 +108,7 @@ namespace ConsoleApp1
 
                 var fileNumber = parts[0].Trim();
                 var text = parts[1].Trim();
-                var audioPath = Path.Combine(audioFolder, $"{fileNumber}.wav");
+                var audioPath = Path.Combine(audioFolder, $"{fileNumber}");
 
                 if (!File.Exists(audioPath))
                 {
@@ -117,14 +122,32 @@ namespace ConsoleApp1
 
                     int samplingRate;
                     float duration;
-                    //var bytes = ReadWavAsFloatList(audioPath, out samplingRate, out duration);
                     GetAudioMetadata(audioPath, out samplingRate, out duration);
+                    var ast = new AudioStruct(text, bytes, audioPath, samplingRate, duration);
+                    dataList.Add(ast);
+                    cnt++;
 
-                    texts.Add(text);
-                    audioArrays.Add(bytes);
-                    audioPaths.Add(audioPath);
-                    samplingRates.Add(samplingRate);
-                    durations.Add(duration);
+                    if (cnt >= 100)
+                    {
+                        if (first)
+                        {
+                            await appendData(dataList, false);
+                            first = false;
+                            cnt = 0;
+                            dataList.Clear();
+                        }
+                        else
+                        {
+
+                            await appendData(dataList, true);
+                            cnt = 0;
+                            dataList.Clear();
+                        }
+                    }
+
+
+
+                    Console.WriteLine($"File: {audioPath}, Text: {text}, Sample Rate:{samplingRate}, Duration:{duration} ");
                 }
                 catch (Exception e)
                 {
@@ -132,56 +155,37 @@ namespace ConsoleApp1
                 }
             }
 
-            // Define schema
-            var textField = new PrimitiveNode("text", Repetition.Required, LogicalType.String(), PhysicalType.ByteArray);
-
-
-            var arrayField = new PrimitiveNode("bytes", Repetition.Required, LogicalType.None(), PhysicalType.ByteArray);
-            var pathField = new PrimitiveNode("path", Repetition.Optional, LogicalType.String(), PhysicalType.ByteArray);
-            var samplingRateField = new PrimitiveNode("sampling_rate", Repetition.Optional, LogicalType.Null(), PhysicalType.Int32);
-            var durationField = new PrimitiveNode("duration", Repetition.Optional, LogicalType.None(), PhysicalType.Float);
-
-            var audioGroup = new GroupNode("audio", Repetition.Required, new Node[]
-            {
-            arrayField,
-            pathField,
-            samplingRateField,
-            durationField
-            });
-
-
-            var schema = new GroupNode("schema", Repetition.Required, new Node[]
-            {
-            textField,
-            audioGroup
-            });
-
-            // Write Parquet file
-            var writerProperties = new WriterPropertiesBuilder().Compression(Compression.Snappy).Build();
-            using var fileWriter = new ParquetFileWriter(parquetOutput, schema, writerProperties);
-            using var rowGroupWriter = fileWriter.AppendRowGroup();
-
-            using var textWriter = rowGroupWriter.NextColumn().LogicalWriter<string>();
-            textWriter.WriteBatch(texts.ToArray());
-            using var arrayWriter = rowGroupWriter.NextColumn().LogicalWriter<Nested<byte[]>>();
-            arrayWriter.WriteBatch(WrapNested(audioArrays));
-
-            using var pathWriter = rowGroupWriter.NextColumn().LogicalWriter<Nested<string>>();
-            pathWriter.WriteBatch(WrapNested(audioPaths));
-            using var srWriter = rowGroupWriter.NextColumn().LogicalWriter<Nested<int?>>();
-            srWriter.WriteBatch(WrapNestedNullable(samplingRates));
-            using var durWriter = rowGroupWriter.NextColumn().LogicalWriter<Nested<float?>>();
-            durWriter.WriteBatch(WrapNestedNullable(durations));
-
-
-
-            fileWriter.Close();
-
             Console.WriteLine("✅ Parquet file written successfully with raw audio bytes.");
 
 
             return true;
 
+        }
+
+
+        private async static Task<bool> appendData(List<AudioStruct> dataList, bool append)
+        {
+
+            if (!append)
+            {
+                using (FileStream fs = new FileStream(parquetOutput, FileMode.Create, FileAccess.Write))
+                {
+                    // Step 3:Create parquet file
+                    await ParquetSerializer.SerializeAsync(dataList, fs, new ParquetSerializerOptions { Append = append });
+
+                }
+            }
+            else
+            {
+                using (FileStream fs = new FileStream(parquetOutput, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                {
+                    // Step 3: Prepare new data to append
+                    await ParquetSerializer.SerializeAsync(dataList, fs, new ParquetSerializerOptions { Append = append });
+                }
+            }
+
+
+            return true;
         }
 
         static byte[][] convertListToArray(List<byte[]> byteArrayList)
