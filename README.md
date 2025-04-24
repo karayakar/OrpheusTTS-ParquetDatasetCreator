@@ -1,6 +1,8 @@
-## **📦 Orpheus-TTS Dataset Preparation**
+## **📦 Orpheus-TTS / OuteTTS or other Dataset Preparation**
 
 This repository provides tools, including a console app and Python scripts, to create datasets for Orpheus TTS. Follow the steps below to prepare your dataset efficiently.
+You can use this tool to create or read parquet files for other datasets.
+
 
 ---
 
